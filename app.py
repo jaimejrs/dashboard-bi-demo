@@ -137,7 +137,7 @@ else:
 
             # Placeholder de análises removidas
             st.subheader("Análises Avançadas")
-            st.info("A análise de Machine Learning foi removida nesta versão demonstrativa.")
+            st.info("A análise de Machine Learning foi removida até termos um melhor entendimento sobre Random Forest Regressor 😅")
 
     # ------------------ ABA 2: FATORES DE PERFORMANCE ------------------
     with tab2:
@@ -191,8 +191,8 @@ else:
     # ------------------ ABA 3: ANÁLISE DE CONTEÚDO ------------------
     with tab3:
         st.header("Análise do Conteúdo dos Vídeos")
-        st.info("As análises de conteúdo de texto (Top Palavras-chave, Sentimento) e Teste A/B foram removidas nesta versão demonstrativa.")
-        st.warning("Esta aba está vazia nesta versão. Na versão completa, ela contém análises de Processamento de Linguagem Natural.")
+        st.info("As análises de conteúdo de texto (Top Palavras-chave, Sentimento) e Teste A/B foram removidas até um melhor entendimento de sua funcionalidade 😅.")
+        st.warning("Esta aba está vazia nesta versão. Na versão completa, ela terá análises de Processamento de Linguagem Natural.")
 
     # ------------------ ABA 4: ANÁLISE GEOGRÁFICA ------------------
     with tab4:
