@@ -69,3 +69,28 @@ O projeto foi desenvolvido com um ecossistema moderno de **bibliotecas Python** 
 ```bash
 git clone https://github.com/seu-usuario/dashboard-bi-demo.git
 cd dashboard-bi-demo
+```
+
+### 2️⃣ Crie e ative um ambiente virtual
+
+No Linux / macOS (Para quem é nerd ou rico):
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+No Windows [PowerShell] (Como um mero mortal comum):
+
+```powershell
+python -m venv venv
+.\venv\Scripts\activate
+```
+### 4️⃣ Adicione o arquivo de dados
+
+Certifique-se de que o arquivo youtube_shorts_tiktok_trends_2025.csv esteja na raiz do projeto, junto ao arquivo app.py.
+
+### 5️⃣ Execute o aplicativo
+
+```bash
+streamlit run app.py
+```
