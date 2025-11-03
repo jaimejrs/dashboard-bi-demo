@@ -1,4 +1,4 @@
-# app.py (Versão Demo)
+# app.py (Versão Demo )
 
 # --- 1. Importação das Bibliotecas ---
 import streamlit as st
@@ -24,51 +24,27 @@ def carregar_dados(caminho_arquivo: str) -> pd.DataFrame:
         st.info("Por favor, aguarde enquanto o repositório está a ser preparado. Se o erro persistir, verifique o nome do arquivo.")
         st.stop()
 
-    # --- Transformações Temporais ---
     df['year_month'] = df['publish_date_approx'].dt.to_period('M').astype(str)
     df['publish_dayofweek'] = df['publish_date_approx'].dt.day_name()
     return df
 
-# >>> ALTERAÇÃO: helper para remover grades de forma consistente
-def remover_grades(fig):
-    fig.update_xaxes(showgrid=False)
-    fig.update_yaxes(showgrid=False)
-    return fig
-
-# >>> ALTERAÇÃO: ajustes para adicionar rótulos aos gráficos de linha
 def plotar_grafico_linha(df, x_col, y_col, agg_func, titulo, **kwargs):
-    """Função reutilizável para criar gráficos de linha agregados com rótulos e sem grades."""
+    """Função reutilizável para criar gráficos de linha agregados."""
     df_agg = df.groupby(x_col)[y_col].agg(agg_func).reset_index()
-    # adiciona rótulos de dados
-    fig = px.line(
-        df_agg,
-        x=x_col, y=y_col,
-        markers=True,
-        title=titulo,
-        text=y_col,                 # >>> ALTERAÇÃO: rótulos
-        **kwargs
-    )
-    fig.update_traces(textposition='top center', texttemplate='%{text:.2f}')
-    remover_grades(fig)            # >>> ALTERAÇÃO: remove grades
+    fig = px.line(df_agg, x=x_col, y=y_col, markers=True, title=titulo, **kwargs)
     st.plotly_chart(fig, use_container_width=True)
 
-# >>> ALTERAÇÃO: ajustes para adicionar rótulos aos gráficos de barra/coluna
 def plotar_grafico_barra(df, x_col, y_col, titulo, **kwargs):
-    """Função reutilizável para criar gráficos de barra com rótulos e sem grades."""
-    fig = px.bar(
-        df, x=x_col, y=y_col,
-        title=titulo,
-        text=y_col,                 # >>> ALTERAÇÃO: rótulos
-        **kwargs
-    )
-    fig.update_traces(textposition='outside', texttemplate='%{text:.2f}')
-    remover_grades(fig)            # >>> ALTERAÇÃO: remove grades
+    """Função reutilizável para criar gráficos de barra."""
+    fig = px.bar(df, x=x_col, y=y_col, title=titulo, **kwargs)
     st.plotly_chart(fig, use_container_width=True)
 
 # --- 3. Configurações Iniciais ---
 st.set_page_config(layout="wide", page_title="Análise de Vídeos Virais (Demo BI)")
 
 # --- 4. Carregamento Inicial e Filtros ---
+
+# MODIFICAÇÃO IMPORTANTE: Removida a pasta 'data/' do caminho.
 df_original = carregar_dados('youtube_shorts_tiktok_trends_2025.csv')
 
 st.sidebar.header("Filtros")
@@ -112,30 +88,12 @@ else:
         st.header("Visão Geral dos Dados")
         col1, col2 = st.columns(2)
         with col1:
-            # Linha com rótulos + sem grades
-            plotar_grafico_linha(
-                df_filtrado, 'year_month', 'views', 'sum',
-                'Tendência Mensal de Visualizações',
-                labels={'year_month': 'Mês', 'views': 'Total de Visualizações'}
-            )
-
-            # Pizza (não tem grades; mantido)
+            plotar_grafico_linha(df_filtrado, 'year_month', 'views', 'sum', 'Tendência Mensal de Visualizações', labels={'year_month': 'Mês', 'views': 'Total de Visualizações'})
             engagement_by_platform = df_filtrado.groupby('platform')['engagement_rate'].mean().reset_index()
-            fig = px.pie(
-                engagement_by_platform, values='engagement_rate', names='platform',
-                title='Taxa de Engajamento Média', hole=.3
-            )
+            fig = px.pie(engagement_by_platform, values='engagement_rate', names='platform', title='Taxa de Engajamento Média', hole=.3)
             st.plotly_chart(fig, use_container_width=True)
-
         with col2:
-            # Linha com rótulos + sem grades
-            plotar_grafico_linha(
-                df_filtrado, 'year_month', 'engagement_rate', 'mean',
-                'Tendência Mensal da Taxa de Engajamento',
-                labels={'year_month': 'Mês', 'engagement_rate': 'Taxa de Engajamento Média'},
-                color_discrete_sequence=['green']
-            )
-
+            plotar_grafico_linha(df_filtrado, 'year_month', 'engagement_rate', 'mean', 'Tendência Mensal da Taxa de Engajamento', labels={'year_month': 'Mês', 'engagement_rate': 'Taxa de Engajamento Média'}, color_discrete_sequence=['green'])
             st.subheader("Análises Avançadas")
             st.info("A análise de Machine Learning foi removida nesta versão demonstrativa.")
 
@@ -143,48 +101,18 @@ else:
         st.header("Análise de Fatores de Performance")
         col1, col2 = st.columns(2)
         with col1:
-            # Linha com rótulos + sem grades
-            plotar_grafico_linha(
-                df_filtrado, 'upload_hour', 'engagement_rate', 'mean',
-                'Engajamento por Hora de Upload',
-                labels={'upload_hour': 'Hora do Dia (24h)', 'engagement_rate': 'Taxa de Engajamento Média'}
-            )
-
-            # Barra com rótulos + sem grades
+            plotar_grafico_linha(df_filtrado, 'upload_hour', 'engagement_rate', 'mean', 'Engajamento por Hora de Upload', labels={'upload_hour': 'Hora do Dia (24h)', 'engagement_rate': 'Taxa de Engajamento Média'})
             engagement_by_category = df_filtrado.groupby('category')['engagement_total'].median().sort_values(ascending=False)
-            plotar_grafico_barra(
-                engagement_by_category, engagement_by_category.index, engagement_by_category.values,
-                'Engajamento Total Mediano por Categoria',
-                color=engagement_by_category.index,
-                labels={'x': 'Categoria', 'y': 'Engajamento Mediano'},
-                log_y=True
-            )
-
+            plotar_grafico_barra(engagement_by_category, engagement_by_category.index, engagement_by_category.values, 'Engajamento Total Mediano por Categoria', color=engagement_by_category.index, labels={'x': 'Categoria', 'y': 'Engajamento Mediano'}, log_y=True)
         with col2:
-            # Transform binning
             bins = [0, 15, 30, 60, 120, np.inf]
             labels = ['0-15s', '16-30s', '31-60s', '61-120s', '120s+']
             df_filtrado['duration_bin'] = pd.cut(df_filtrado['duration_sec'], bins=bins, labels=labels, right=False)
-
-            # Barra com rótulos + sem grades
             engagement_by_duration = df_filtrado.groupby('duration_bin', observed=True)['engagement_rate'].mean().reset_index()
-            plotar_grafico_barra(
-                engagement_by_duration, 'duration_bin', 'engagement_rate',
-                'Engajamento por Duração do Vídeo',
-                color='duration_bin',
-                labels={'duration_bin': 'Faixa de Duração', 'engagement_rate': 'Taxa de Engajamento Média'}
-            )
-
-            # Barra com rótulos + sem grades
+            plotar_grafico_barra(engagement_by_duration, 'duration_bin', 'engagement_rate', 'Engajamento por Duração do Vídeo', color='duration_bin', labels={'duration_bin': 'Faixa de Duração', 'engagement_rate': 'Taxa de Engajamento Média'})
             dias_ordem = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
             engagement_by_weekday = df_filtrado.groupby('publish_dayofweek')['engagement_rate'].mean().reindex(dias_ordem).reset_index()
-            plotar_grafico_barra(
-                engagement_by_weekday, 'publish_dayofweek', 'engagement_rate',
-                'Engajamento por Dia da Semana',
-                color='publish_dayofweek',
-                labels={'publish_dayofweek': 'Dia da Semana', 'engagement_rate': 'Taxa de Engajamento Média'},
-                log_y=True
-            )
+            plotar_grafico_barra(engagement_by_weekday, 'publish_dayofweek', 'engagement_rate', 'Engajamento por Dia da Semana', color='publish_dayofweek', labels={'publish_dayofweek': 'Dia da Semana', 'engagement_rate': 'Taxa de Engajamento Média'}, log_y=True)
 
     with tab3:
         st.header("Análise do Conteúdo dos Vídeos")
@@ -194,34 +122,14 @@ else:
     with tab4:
         st.header("Análise Geográfica")
         st.subheader("Performance por País (Visualizações vs. Engajamento)")
-
-        # >>> ÚNICO GRÁFICO QUE MANTÉM AS GRADES
-        analise_paises = df_filtrado.groupby('country').agg(
-            avg_views=('views', 'mean'),
-            avg_engagement_rate=('engagement_rate', 'mean'),
-            video_count=('row_id', 'count')
-        ).reset_index()
-        fig = px.scatter(
-            analise_paises, x='avg_views', y='avg_engagement_rate',
-            size='video_count', color='country', hover_name='country',
-            log_x=True, size_max=60, text='country',
-            labels={"avg_views": "Média de Visualizações (Log)", "avg_engagement_rate": "Taxa de Engajamento Média"}
-        )
-        # rótulos no centro em branco (como você já usava)
+        analise_paises = df_filtrado.groupby('country').agg(avg_views=('views', 'mean'), avg_engagement_rate=('engagement_rate', 'mean'), video_count=('row_id', 'count')).reset_index()
+        fig = px.scatter(analise_paises, x='avg_views', y='avg_engagement_rate', size='video_count', color='country', hover_name='country', log_x=True, size_max=60, text='country', labels={"avg_views": "Média de Visualizações (Log)", "avg_engagement_rate": "Taxa de Engajamento Média"})
         fig.update_traces(textposition='middle center', textfont=dict(color='white'))
-        # >>> NÃO remover grades aqui!
         st.plotly_chart(fig, use_container_width=True)
-
         st.subheader("Taxa de Engajamento por Categoria e Região")
         pivot_engagement = df_filtrado.pivot_table(values='engagement_rate', index='region', columns='category', aggfunc='mean')
         if not pivot_engagement.empty:
-            fig_heatmap = px.imshow(
-                pivot_engagement, text_auto=".3f", aspect="auto",
-                labels=dict(x="Categoria", y="Região", color="Engajamento Médio"),
-                color_continuous_scale='YlGnBu'
-            )
-            # >>> ALTERAÇÃO: remover grades também no heatmap
-            remover_grades(fig_heatmap)
+            fig_heatmap = px.imshow(pivot_engagement, text_auto=".3f", aspect="auto", labels=dict(x="Categoria", y="Região", color="Engajamento Médio"), color_continuous_scale='YlGnBu')
             st.plotly_chart(fig_heatmap, use_container_width=True)
         else:
             st.info("Não há dados suficientes para criar o heatmap com os filtros atuais.")
